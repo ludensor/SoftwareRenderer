@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Sources\Device.cpp" />
+    <ClCompile Include="..\Sources\Main.cpp" />
+    <ClCompile Include="..\Sources\Resource.cpp" />
+    <ClCompile Include="..\Sources\Shader\ColorShader.cpp">
+      <Filter>Shader</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Sources\Device.h" />
+    <ClInclude Include="..\Sources\Resource.h" />
+    <ClInclude Include="..\Sources\MathUtils.h" />
+    <ClInclude Include="..\Sources\Shader\Shader.h">
+      <Filter>Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Sources\Shader\ColorShader.h">
+      <Filter>Shader</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{402984e9-9002-447c-8cbf-964a6ab4cec2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
