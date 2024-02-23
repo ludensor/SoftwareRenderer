@@ -5,6 +5,12 @@
 constexpr int32_t WIN_WIDTH = 1600;
 constexpr int32_t WIN_HEIGHT = 900;
 
+struct VertexData
+{
+	sr::math::Vector3 position;
+	sr::math::Vector4 color;
+};
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd)
@@ -32,8 +38,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	ShowWindow(hWnd, nShowCmd);
 	UpdateWindow(hWnd);
 
-	sr::Device* device = new sr::Device(hWnd, WIN_WIDTH, WIN_HEIGHT);
-	if (!device->Init())
+	std::unique_ptr<sr::Device> device = std::make_unique<sr::Device>(hWnd, WIN_WIDTH, WIN_HEIGHT);
+	if (!device->StartUp())
 	{
 		PostQuitMessage(1);
 	}
@@ -46,6 +52,17 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
 	float elapsed_time = 0.0f;
 	int32_t frame_count = 0;
+
+	constexpr VertexData vertices[]
+	{
+		{ sr::math::Vector3{ 0.0f, 0.0f, 0.0f }, sr::math::Vector4{ 1.0f, 0.0f, 0.0f, 1.0f } },
+		{ sr::math::Vector3{ 1600.0f, 0.0f, 0.0f }, sr::math::Vector4{ 0.0f, 1.0f, 0.0f, 1.0f } },
+		{ sr::math::Vector3{ 0.0f, 900.0f, 0.0f }, sr::math::Vector4{ 0.0f, 0.0f, 1.0f, 1.0f } }
+	};
+
+	uint32_t byte_width = sizeof(vertices);
+
+	std::shared_ptr<sr::Buffer> vertex_buffer = device->CreateBuffer(vertices, byte_width);
 
 	MSG msg{};
 	while (msg.message != WM_QUIT)
@@ -68,7 +85,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 				const float fps = (float)frame_count;
 				const float mspf = 1000.0f / fps;
 
-				const std::wstring title = std::format(TEXT("{0}    fps: {1:0.2f}    mspf: {2:f}"), TEXT("Software Renderer"), fps, mspf);					
+				const std::wstring title = std::format(TEXT("{0}    fps: {1:0.2f}    mspf: {2:f}"), TEXT("Software Renderer"), fps, mspf);
 				SetWindowText(hWnd, title.c_str());
 
 				frame_count = 0;
@@ -77,21 +94,19 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
 			prev_time = current_time;
 
-			device->Clear(0xff0000ff);
-			device->SetPixel(800, 450, 0xffff0000);
-			device->SetPixel(801, 450, 0xffff0000);
-			device->SetPixel(802, 450, 0xffff0000);
-			device->SetPixel(803, 450, 0xffff0000);
-			device->SetPixel(804, 450, 0xffff0000);
-			device->SetPixel(805, 450, 0xffff0000);
-			device->SetPixel(806, 450, 0xffff0000);
-			device->SetPixel(807, 450, 0xffff0000);
-			device->SetPixel(808, 450, 0xffff0000);
+			constexpr sr::Vertex point_a{ sr::math::Vector4{+0.0f, +0.5f, 0.0f, 1.0f}, 1.0f, 0.0f, 0.0f, 1.0f };
+			constexpr sr::Vertex point_b{ sr::math::Vector4{+0.5f, -0.5f, 0.0f, 1.0f}, 0.0f, 1.0f, 0.0f, 1.0f };
+			constexpr sr::Vertex point_c{ sr::math::Vector4{-0.5f, -0.5f, 0.0f, 1.0f}, 0.0f, 0.0f, 1.0f, 1.0f };
+			constexpr sr::Vertex point_d{ sr::math::Vector4{+1.0f, -1.0f, 0.0f, 1.0f}, 1.0f, 0.0f, 1.0f, 1.0f };
+
+			device->Clear(sr::math::Vector4{ 0.2f, 0.2f, 0.2f, 1.0f });
+			device->Draw(point_a, point_b, point_c);
+			//device->Draw(point_b, point_d, point_c);
 			device->Present();
 		}
 	}
 
-	delete device;
+	device->ShutDown();
 	UnregisterClass(wc.lpszClassName, hInstance);
 
 	return (int)msg.wParam;

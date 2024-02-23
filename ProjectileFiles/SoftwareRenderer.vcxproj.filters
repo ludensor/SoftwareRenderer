@@ -3,25 +3,48 @@
   <ItemGroup>
     <ClCompile Include="..\Sources\Device.cpp" />
     <ClCompile Include="..\Sources\Main.cpp" />
-    <ClCompile Include="..\Sources\Resource.cpp" />
-    <ClCompile Include="..\Sources\Shader\ColorShader.cpp">
+    <ClCompile Include="..\Sources\Buffer.cpp" />
+    <ClCompile Include="..\Sources\Texture2D.cpp" />
+    <ClCompile Include="..\Sources\Shader\VS_Color.cpp">
+      <Filter>Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Sources\Shader\PS_Color.cpp">
       <Filter>Shader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Sources\Device.h" />
-    <ClInclude Include="..\Sources\Resource.h" />
-    <ClInclude Include="..\Sources\MathUtils.h" />
-    <ClInclude Include="..\Sources\Shader\Shader.h">
+    <ClInclude Include="..\Sources\Buffer.h" />
+    <ClInclude Include="..\Sources\Texture2D.h" />
+    <ClInclude Include="..\Sources\Shader\PixelShaderInterface.h">
       <Filter>Shader</Filter>
     </ClInclude>
-    <ClInclude Include="..\Sources\Shader\ColorShader.h">
+    <ClInclude Include="..\Sources\Shader\PS_Color.h">
       <Filter>Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Sources\Shader\VertexShaderInterface.h">
+      <Filter>Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Sources\Shader\VS_Color.h">
+      <Filter>Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Sources\Archive.h" />
+    <ClInclude Include="..\Sources\Math\MathTypes.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Sources\Math\MatrixRegister.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Sources\Math\VectorRegister.h">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shader">
       <UniqueIdentifier>{402984e9-9002-447c-8cbf-964a6ab4cec2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{cde41698-9beb-4238-b587-b251f70addca}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
