@@ -1,14 +1,14 @@
-#include "Device.h"
-
 #include <format>
+
+#include "Device.h"
 
 constexpr int32_t WIN_WIDTH = 1600;
 constexpr int32_t WIN_HEIGHT = 900;
 
 struct VertexData
 {
-	sr::math::Vector3 position;
-	sr::math::Vector4 color;
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT4 color;
 };
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -55,9 +55,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
 	constexpr VertexData vertices[]
 	{
-		{ sr::math::Vector3{ 0.0f, 0.0f, 0.0f }, sr::math::Vector4{ 1.0f, 0.0f, 0.0f, 1.0f } },
-		{ sr::math::Vector3{ 1600.0f, 0.0f, 0.0f }, sr::math::Vector4{ 0.0f, 1.0f, 0.0f, 1.0f } },
-		{ sr::math::Vector3{ 0.0f, 900.0f, 0.0f }, sr::math::Vector4{ 0.0f, 0.0f, 1.0f, 1.0f } }
+		{ DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }, DirectX::XMFLOAT4{ 1.0f, 0.0f, 0.0f, 1.0f } },
+		{ DirectX::XMFLOAT3{ 1600.0f, 0.0f, 0.0f }, DirectX::XMFLOAT4{ 0.0f, 1.0f, 0.0f, 1.0f } },
+		{ DirectX::XMFLOAT3{ 0.0f, 900.0f, 0.0f }, DirectX::XMFLOAT4{ 0.0f, 0.0f, 1.0f, 1.0f } }
 	};
 
 	uint32_t byte_width = sizeof(vertices);
@@ -94,12 +94,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
 			prev_time = current_time;
 
-			constexpr sr::Vertex point_a{ sr::math::Vector4{+0.0f, +0.5f, 0.0f, 1.0f}, 1.0f, 0.0f, 0.0f, 1.0f };
-			constexpr sr::Vertex point_b{ sr::math::Vector4{+0.5f, -0.5f, 0.0f, 1.0f}, 0.0f, 1.0f, 0.0f, 1.0f };
-			constexpr sr::Vertex point_c{ sr::math::Vector4{-0.5f, -0.5f, 0.0f, 1.0f}, 0.0f, 0.0f, 1.0f, 1.0f };
-			constexpr sr::Vertex point_d{ sr::math::Vector4{+1.0f, -1.0f, 0.0f, 1.0f}, 1.0f, 0.0f, 1.0f, 1.0f };
+			constexpr sr::Vertex point_a{ DirectX::XMFLOAT4{+0.0f, +0.5f, 0.0f, 1.0f}, 1.0f, 0.0f, 0.0f, 1.0f };
+			constexpr sr::Vertex point_b{ DirectX::XMFLOAT4{+0.5f, -0.5f, 0.0f, 1.0f}, 0.0f, 1.0f, 0.0f, 1.0f };
+			constexpr sr::Vertex point_c{ DirectX::XMFLOAT4{-0.5f, -0.5f, 0.0f, 1.0f}, 0.0f, 0.0f, 1.0f, 1.0f };
+			constexpr sr::Vertex point_d{ DirectX::XMFLOAT4{+1.0f, -1.0f, 0.0f, 1.0f}, 1.0f, 0.0f, 1.0f, 1.0f };
 
-			device->Clear(sr::math::Vector4{ 0.2f, 0.2f, 0.2f, 1.0f });
+			device->Clear(DirectX::XMFLOAT4{ 0.2f, 0.2f, 0.2f, 1.0f });
 			device->Draw(point_a, point_b, point_c);
 			//device->Draw(point_b, point_d, point_c);
 			device->Present();

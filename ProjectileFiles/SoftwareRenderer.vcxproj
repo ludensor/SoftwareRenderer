@@ -142,21 +142,13 @@
     <ClCompile Include="..\Sources\Buffer.cpp" />
     <ClCompile Include="..\Sources\Device.cpp" />
     <ClCompile Include="..\Sources\Main.cpp" />
-    <ClCompile Include="..\Sources\Shader\PS_Color.cpp" />
-    <ClCompile Include="..\Sources\Shader\VS_Color.cpp" />
+    <ClCompile Include="..\Sources\Shader.cpp" />
     <ClCompile Include="..\Sources\Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Sources\Archive.h" />
     <ClInclude Include="..\Sources\Buffer.h" />
     <ClInclude Include="..\Sources\Device.h" />
-    <ClInclude Include="..\Sources\Math\MathTypes.h" />
-    <ClInclude Include="..\Sources\Math\MatrixRegister.h" />
-    <ClInclude Include="..\Sources\Math\VectorRegister.h" />
-    <ClInclude Include="..\Sources\Shader\PixelShaderInterface.h" />
-    <ClInclude Include="..\Sources\Shader\PS_Color.h" />
-    <ClInclude Include="..\Sources\Shader\VertexShaderInterface.h" />
-    <ClInclude Include="..\Sources\Shader\VS_Color.h" />
+    <ClInclude Include="..\Sources\Shader.h" />
     <ClInclude Include="..\Sources\Texture2D.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

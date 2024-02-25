@@ -3,18 +3,16 @@
 #include <windows.h>
 #include <memory>
 
-#include "Math/VectorRegister.h"
 #include "Buffer.h"
-#include "Shader/VertexShaderInterface.h"
-#include "Shader/PixelShaderInterface.h"
+#include "Shader.h"
 #include "Texture2D.h"
 
 namespace sr
 {
 	struct Vertex
 	{
-		math::Vector4 position;
-		math::VectorRegister color;
+		DirectX::XMFLOAT4 position;
+		DirectX::XMVECTOR color;
 	};
 
 	struct Edge
@@ -38,23 +36,24 @@ namespace sr
 
 		std::shared_ptr<Buffer> CreateBuffer(const void* system_memory, uint32_t byte_width);
 		std::shared_ptr<Texture2D> CreateTexture2D(const void* system_memory, uint32_t width, uint32_t height);
-		
+
 
 		void SetVertexBuffer(std::shared_ptr<Buffer> vertex_buffer, uint32_t stride);
 		void SetIndexBuffer(std::shared_ptr<Buffer> index_buffer);
-		void Clear(const math::Vector4& color);
+		void Clear(const DirectX::XMFLOAT4& color);
 		void Present();
 		void DrawPrimitive(uint32_t vertex_count);
 		void DrawIndexedPrimitive(uint32_t index_count);
 		void Draw(Vertex p1, Vertex p2, Vertex p3);
 
 	private:
-		const Vertex VertexInterp(const Vertex& a, const Vertex& b, float t);
 		int32_t BuildTriangles(Triangle triangles[2], const Vertex* top, const Vertex* middle, const Vertex* bottom);
 		void DrawTriangle(const Triangle& triangle);
-		void DrawScanline(float xl, float xr, uint32_t y, math::VectorRegister cl, math::VectorRegister cr);
+		void DrawScanline(float xl, float xr, uint32_t y, DirectX::XMVECTOR cl, DirectX::XMVECTOR cr);
 
-		math::Vector4 TransformNDC(const math::Vector4& v);
+		DirectX::XMFLOAT4 TransformNDC(const DirectX::XMFLOAT4& v);
+
+		uint32_t ToColorRef(const DirectX::XMFLOAT4& color);
 
 	private:
 		HWND output_window_;
@@ -73,7 +72,6 @@ namespace sr
 		std::shared_ptr<Buffer> index_buffer_;
 		uint32_t stride_;
 
-		std::shared_ptr<shader::IVertexShader> vertex_shader_;
-		std::shared_ptr<shader::IPixelShader> pixel_shader_;
+		std::shared_ptr<IShader> shader_;
 	};
 }

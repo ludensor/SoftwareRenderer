@@ -1,6 +1,6 @@
 #include "Device.h"
 
-#include <algorithm>
+#define Clamp(x, min, max) (x < min ? min : x > max ? max : x)
 
 sr::Device::Device(HWND hWnd, uint32_t width, uint32_t height)
 	: output_window_(hWnd)
@@ -76,11 +76,11 @@ void sr::Device::SetIndexBuffer(std::shared_ptr<Buffer> index_buffer)
 	index_buffer_ = index_buffer;
 }
 
-void sr::Device::Clear(const math::Vector4& color)
+void sr::Device::Clear(const DirectX::XMFLOAT4& color)
 {
 	uint32_t* data = (uint32_t*)pixel_buffer_;
 
-	const uint32_t argb = math::ColorRGBATo32ARGB(&color);
+	const uint32_t argb = ToColorRef(color);
 	for (uint32_t i = 0; i < width_; ++i)
 	{
 		data[i] = argb;
@@ -124,18 +124,13 @@ void sr::Device::Draw(Vertex p1, Vertex p2, Vertex p3)
 	if (num_triangles >= 2) { DrawTriangle(triangles[1]); }
 }
 
-const sr::Vertex sr::Device::VertexInterp(const Vertex& a, const Vertex& b, float t)
-{
-	return Vertex{ a.position + (b.position - a.position) * t, math::VectorInterp(a.color, b.color, t) };
-}
-
 int32_t sr::Device::BuildTriangles(Triangle triangles[2], const Vertex* top, const Vertex* middle, const Vertex* bottom)
 {
+	if (top->position.x == middle->position.x && middle->position.x == bottom->position.x) { return 0; }
+	if (top->position.y == middle->position.y && middle->position.y == bottom->position.y) { return 0; }
 	if (top->position.y > middle->position.y) { std::swap(top, middle); }
 	if (top->position.y > bottom->position.y) { std::swap(top, bottom); }
 	if (middle->position.y > bottom->position.y) { std::swap(middle, bottom); }
-	if (top->position.x == middle->position.x && middle->position.x == bottom->position.x) { return 0; }
-	if (top->position.y == middle->position.y && middle->position.y == bottom->position.y) { return 0; }
 
 	//    T
 	//  /   \
@@ -187,7 +182,9 @@ int32_t sr::Device::BuildTriangles(Triangle triangles[2], const Vertex* top, con
 	if (middle->position.x > x)
 	{
 		triangles[0].left.v1 = *top;
-		triangles[0].left.v2 = VertexInterp(*top, *bottom, t);
+		triangles[0].left.v2.position.x = top->position.x + (bottom->position.x - top->position.x) * t;
+		triangles[0].left.v2.position.y = top->position.y + (bottom->position.y - top->position.y) * t;
+		triangles[0].left.v2.color = DirectX::XMVectorLerp(top->color, bottom->color, t);
 		triangles[0].right.v1 = *top;
 		triangles[0].right.v2 = *middle;
 		triangles[1].left.v1 = triangles[0].left.v2;
@@ -200,7 +197,9 @@ int32_t sr::Device::BuildTriangles(Triangle triangles[2], const Vertex* top, con
 		triangles[0].left.v1 = *top;
 		triangles[0].left.v2 = *middle;
 		triangles[0].right.v1 = *top;
-		triangles[0].right.v2 = VertexInterp(*top, *bottom, t);
+		triangles[0].right.v2.position.x = top->position.x + (bottom->position.x - top->position.x) * t;
+		triangles[0].right.v2.position.y = top->position.y + (bottom->position.y - top->position.y) * t;
+		triangles[0].right.v2.color = DirectX::XMVectorLerp(top->color, bottom->color, t);
 		triangles[1].left.v1 = *middle;
 		triangles[1].left.v2 = *bottom;
 		triangles[1].right.v1 = triangles[0].right.v2;
@@ -225,22 +224,22 @@ void sr::Device::DrawTriangle(const Triangle& triangle)
 	const float factor_step_xl = 1.0f / diff_yl;
 	const float factor_step_xr = 1.0f / diff_yr;
 
-	const uint32_t begin_y = std::clamp<uint32_t>((uint32_t)triangle.top_y, 0, height_);
-	const uint32_t end_y = std::clamp<uint32_t>((uint32_t)triangle.bottom_y, 0, height_);
+	const uint32_t begin_y = Clamp((uint32_t)triangle.top_y, 0, height_);
+	const uint32_t end_y = Clamp((uint32_t)triangle.bottom_y, 0, height_);
 	for (uint32_t y = begin_y; y < end_y; ++y)
 	{
 		const float xl = triangle.left.v1.position.x + diff_xl * factor_xl;
 		const float xr = triangle.right.v1.position.x + diff_xr * factor_xr;
 
-		const math::VectorRegister color_l = math::VectorInterp(triangle.left.v1.color, triangle.left.v2.color, factor_xl);
-		const math::VectorRegister color_r = math::VectorInterp(triangle.right.v1.color, triangle.right.v2.color, factor_xr);
+		const DirectX::XMVECTOR color_l = DirectX::XMVectorLerp(triangle.left.v1.color, triangle.left.v2.color, factor_xl);
+		const DirectX::XMVECTOR color_r = DirectX::XMVectorLerp(triangle.right.v1.color, triangle.right.v2.color, factor_xr);
 		DrawScanline(xl, xr, y, color_l, color_r);
 		factor_xl += factor_step_xl;
 		factor_xr += factor_step_xr;
 	}
 }
 
-void sr::Device::DrawScanline(float xl, float xr, uint32_t y, math::VectorRegister cl, math::VectorRegister cr)
+void sr::Device::DrawScanline(float xl, float xr, uint32_t y, DirectX::XMVECTOR cl, DirectX::XMVECTOR cr)
 {
 	const float diff_x = xr - xl;
 	if (diff_x <= 0.0f)
@@ -252,29 +251,39 @@ void sr::Device::DrawScanline(float xl, float xr, uint32_t y, math::VectorRegist
 
 	float factor = 0.0f;
 	const float factor_step = 1.0f / diff_x;
-	const uint32_t begin_x = std::clamp<uint32_t>((uint32_t)xl, 0, width_);
-	const uint32_t end_x = std::clamp<uint32_t>((uint32_t)xr, 0, width_);
+	const uint32_t begin_x = Clamp((uint32_t)xl, 0, width_);
+	const uint32_t end_x = Clamp((uint32_t)xr, 0, width_);
 	for (uint32_t x = begin_x; x < end_x; ++x)
 	{
-		math::VectorRegister color_register = math::VectorInterp(cl, cr, factor);
-		math::Vector4 color;
-		math::StoreFloat4(&color, color_register);
+		DirectX::XMVECTOR color_register = DirectX::XMVectorLerp(cl, cr, factor);
+		DirectX::XMFLOAT4 color;
+		DirectX::XMStoreFloat4(&color, color_register);
 		factor += factor_step;
 		/*Archive ar;
 		ar << color_register;
 		data[y * width_ + x] = math::ColorRGBATo32ARGB(pixel_shader_->PS(ar));*/
-		data[y * width_ + x] = math::ToColorRef(color);
+		data[y * width_ + x] = ToColorRef(color);
 	}
 }
 
-sr::math::Vector4 sr::Device::TransformNDC(const math::Vector4& v)
+DirectX::XMFLOAT4 sr::Device::TransformNDC(const DirectX::XMFLOAT4& v)
 {
-	sr::math::Vector4 result;
+	DirectX::XMFLOAT4 result;
 	const float rhw = 1.0f / v.w;
 	result.x = (v.x * rhw + 1.0f) * width_ * 0.5f;
 	result.y = (1.0f - v.y * rhw) * height_ * 0.5f;
 	result.z = v.z * rhw;
 	result.w = 1.0f;
 	return result;
+}
+
+uint32_t sr::Device::ToColorRef(const DirectX::XMFLOAT4& color)
+{
+	const uint8_t r = (uint8_t)(Clamp(color.x, 0.0f, 1.0f) * 255.0f);
+	const uint8_t g = (uint8_t)(Clamp(color.y, 0.0f, 1.0f) * 255.0f);
+	const uint8_t b = (uint8_t)(Clamp(color.z, 0.0f, 1.0f) * 255.0f);
+	const uint8_t a = (uint8_t)(Clamp(color.w, 0.0f, 1.0f) * 255.0f);
+
+	return (b) | (g << 8) | (r << 16) | (a << 24);
 }
 
