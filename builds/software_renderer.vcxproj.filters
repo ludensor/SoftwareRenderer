@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{6d319b7e-c803-4549-9fba-88a81659de0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platforms">
+      <UniqueIdentifier>{439098ea-d065-45bb-8270-4bb5fdebc2c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{67958e4a-51c0-4eb4-9dc6-c69af0132473}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\sources\core\sr_application.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sources\core\sr_math.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sources\core\sr_rasterizer.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sources\sr_pch.cpp" />
+    <ClCompile Include="..\sources\core\sr_graphic_device.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sources\platforms\sr_windows.cpp">
+      <Filter>platforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sources\shaders\sr_flat_shader.cpp">
+      <Filter>shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sources\core\sr_camera.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sources\core\sr_core_types.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\sources\core\sr_application.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sources\core\sr_math.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sources\core\sr_rasterizer.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sources\sr_pch.h" />
+    <ClInclude Include="..\sources\core\sr_graphic_device.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sources\shaders\sr_shader_interface.h">
+      <Filter>shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sources\shaders\sr_flat_shader.h">
+      <Filter>shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sources\core\sr_camera.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sources\core\sr_core_types.h">
+      <Filter>core</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
