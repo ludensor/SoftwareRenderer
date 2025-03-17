@@ -179,5 +179,5 @@ void GraphicDevice::Draw()
 	varyings[2] = reinterpret_cast<void*>(&in_varyings[2]);
 
 	pipeline_context_->shader = shader_;
-	rasterizer_->RasterizeTriangle_V1(frame_buffer, *pipeline_context_, vertices, varyings);
+	rasterizer_->RasterizeTriangle_V2(frame_buffer, *pipeline_context_, vertices, varyings);
 }

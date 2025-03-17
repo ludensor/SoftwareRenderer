@@ -71,6 +71,61 @@ void Rasterizer::RasterizeTriangle_V1(const FrameBuffer& frame_buffer, PipelineC
 	}
 }
 
+void Rasterizer::RasterizeTriangle_V2(const FrameBuffer& frame_buffer, PipelineContext& context, const math::Vector4 clip_coords[3], void* varyings[3])
+{
+	// Perspective division
+	math::Vector3 ndc_coords[3];
+	for (int32_t i = 0; i < 3; ++i)
+	{
+		const math::Vector3 clip_coord = math::Vector3(clip_coords[i].x, clip_coords[i].y, clip_coords[i].z);
+		ndc_coords[i] = clip_coord / clip_coords[i].w;
+	}
+
+	// Back-face culling
+	const bool backface = IsBackFacing(ndc_coords);
+	if (backface)
+	{
+		return;
+	}
+
+	// Inverse of w
+	float inv_w[3];
+	for (int32_t i = 0; i < 3; ++i)
+	{
+		inv_w[i] = 1.0f / clip_coords[i].w;
+	}
+
+	// Viewport mapping
+	math::Vector2 screen_coords[3];
+	float screen_depth[3];
+	for (int32_t i = 0; i < 3; ++i)
+	{
+		const math::Vector3 viewport_coords = ViewportTransform(frame_buffer.width, frame_buffer.height, ndc_coords[i]);
+		screen_coords[i] = math::Vector2(viewport_coords.x, viewport_coords.y);
+		screen_depth[i] = ndc_coords[i].z;
+	}
+
+	const Rect box = MakeBoundingBox_V2(screen_coords, frame_buffer.width, frame_buffer.height);
+	for (int32_t x = box.min_x; x <= box.max_x; ++x)
+	{
+		for (int32_t y = box.min_y; y <= box.max_y; ++y)
+		{
+			const math::Vector2 point = math::Vector2(static_cast<float>(x) + 0.5f, static_cast<float>(y) + 0.5f);
+			const math::Vector3 weights = CalculateWeights_V2(screen_coords, point);
+			if (0.0f < weights.x && 0.0f < weights.y && 0.0f < weights.z)
+			{
+				const int32_t index = y * frame_buffer.width + x;
+				//const float depth = InterpolateDepth_V2(screen_depth, weights);
+				//if (depth <= frame_buffer.depth_buffer[index])
+				//{
+				InterpolateVaryings_V2(varyings, context.shader_varyings, context.sizeof_varyings, weights, inv_w);
+				DrawFragment(frame_buffer, context, index);
+				//}
+			}
+		}
+	}
+}
+
 bool Rasterizer::IsBackFacing(const math::Vector3 ndc_coords[3])
 {
 	return false;
@@ -234,6 +289,58 @@ void Rasterizer::InterpolateVaryings_V1(const Trapezoid& trapezoid, void* dst_va
 		const float left = math::FloatLerp(src_left1[i], src_left2[i], ty1);
 		const float right = math::FloatLerp(src_right1[i], src_right2[i], ty2);
 		dst[i] = math::FloatLerp(left, right, tx);
+	}
+}
+
+Rect Rasterizer::MakeBoundingBox_V2(const math::Vector2 screen_coords[3], int32_t width, int32_t height)
+{
+	const math::Vector2 min_vector = math::Vector2Min(math::Vector2Min(screen_coords[0], screen_coords[1]), screen_coords[2]);
+	const math::Vector2 max_vector = math::Vector2Max(math::Vector2Max(screen_coords[0], screen_coords[1]), screen_coords[2]);
+	Rect box;
+	box.min_x = math::Max(math::FloorToInt(min_vector.x), 0);
+	box.min_y = math::Max(math::FloorToInt(min_vector.y), 0);
+	box.max_x = math::Min(math::CeilToInt(max_vector.x), width - 1);
+	box.max_y = math::Min(math::CeilToInt(max_vector.y), height - 1);
+	return box;
+}
+
+math::Vector3 Rasterizer::CalculateWeights_V2(const math::Vector2 screen_coords[3], const math::Vector2& point)
+{
+	const math::Vector2& a = screen_coords[0];
+	const math::Vector2& b = screen_coords[1];
+	const math::Vector2& c = screen_coords[2];
+	const math::Vector2 ab = b - a;
+	const math::Vector2 ac = c - a;
+	const math::Vector2 ap = point - a;
+	const float factor = 1.0f / (ab.x * ac.y - ab.y * ac.x);
+	const float s = (ac.y * ap.x - ac.x * ap.y) * factor;
+	const float t = (ab.x * ap.y - ab.y * ap.x) * factor;
+	return math::Vector3(1.0f - s - t, s, t);
+}
+
+float Rasterizer::InterpolateDepth_V2(const float screen_depths[3], const math::Vector3& weights)
+{
+	const float depth0 = screen_depths[0] * weights.x;
+	const float depth1 = screen_depths[1] * weights.y;
+	const float depth2 = screen_depths[2] * weights.z;
+	return depth0 + depth1 + depth2;
+}
+
+void Rasterizer::InterpolateVaryings_V2(void* src_varyings[3], void* dst_varyings, int32_t sizeof_varyings, const math::Vector3& weights, const float inv_w[3])
+{
+	const int32_t num_floats = sizeof_varyings / sizeof(float);
+	const float* src0 = reinterpret_cast<const float*>(src_varyings[0]);
+	const float* src1 = reinterpret_cast<const float*>(src_varyings[1]);
+	const float* src2 = reinterpret_cast<const float*>(src_varyings[2]);
+	float* dst = reinterpret_cast<float*>(dst_varyings);
+	const float weight0 = inv_w[0] * weights.x;
+	const float weight1 = inv_w[1] * weights.y;
+	const float weight2 = inv_w[2] * weights.z;
+	const float normalizer = 1.0f / (weight0 + weight1 + weight2);
+	for (int32_t i = 0; i < num_floats; ++i)
+	{
+		const float sum = src0[i] * weight0 + src1[i] * weight1 + src2[i] * weight2;
+		dst[i] = sum * normalizer;
 	}
 }
 
