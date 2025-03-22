@@ -12,8 +12,6 @@ GraphicDevice::GraphicDevice()
 	pixel_buffer_ = reinterpret_cast<uint8_t*>(malloc(buffer_bytes));
 	depth_buffer_ = reinterpret_cast<float*>(malloc(buffer_bytes));
 
-	rasterizer_ = new Rasterizer();
-
 	pipeline_context_ = CreatePipelineContext(sizeof(FlatAttributeData), sizeof(FlatVertexData), sizeof(FlatConstantData), false, false);
 }
 
@@ -21,8 +19,6 @@ GraphicDevice::~GraphicDevice()
 {
 	free(pixel_buffer_);
 	free(depth_buffer_);
-
-	delete rasterizer_;
 
 	ReleasePipelineContext(pipeline_context_);
 }
@@ -174,10 +170,10 @@ void GraphicDevice::Draw()
 	math::Vector4 vertices[3] = { in_varyings[0].position, in_varyings[1].position, in_varyings[2].position };
 
 	void* varyings[3];
-	varyings[0] = reinterpret_cast<void*>(&in_varyings[0]);
-	varyings[1] = reinterpret_cast<void*>(&in_varyings[1]);
-	varyings[2] = reinterpret_cast<void*>(&in_varyings[2]);
+	varyings[0] = &in_varyings[0];
+	varyings[1] = &in_varyings[1];
+	varyings[2] = &in_varyings[2];
 
 	pipeline_context_->shader = shader_;
-	rasterizer_->RasterizeTriangle_V2(frame_buffer, *pipeline_context_, vertices, varyings);
+	rasterizer::RasterizeTriangle_V1(frame_buffer, *pipeline_context_, vertices, varyings);
 }

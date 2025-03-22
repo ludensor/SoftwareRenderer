@@ -28,11 +28,3 @@ struct Point
 	int32_t x;
 	int32_t y;
 };
-
-struct Rect
-{
-	int32_t min_x;
-	int32_t min_y;
-	int32_t max_x;
-	int32_t max_y;
-};

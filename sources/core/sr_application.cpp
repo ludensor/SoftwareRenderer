@@ -33,7 +33,7 @@ void Application::Finalize()
 void Application::Tick(float delta_time)
 {
 	graphic_device_->ClearPixelBuffer(math::Vector4(0.3f, 0.3f, 0.3f));
-	//graphic_device_->ClearDepthBuffer(1.0f);
+	graphic_device_->ClearDepthBuffer(1.0f);
 
 	// Store the next delta time in the time sample array
 	delta_time_samples_[next_sample_index_] = delta_time;
@@ -70,20 +70,3 @@ const std::vector<DebugInfo>& Application::GetDebugInfos() const
 {
 	return debug_infos_;
 }
-
-// 렌더링 파이브라인
-/*
- * 버텍스셰이더
- *		- 오브젝트 공간
- *		- 월드 변환
- *		- 뷰 변환
- *		- 투영 변환
- * 래스터라이저
- *		- Clipping 클리핑(화면 밖에 있는 폴리곤 잘라내기)
- *		- Culling 후면 추려내기(화면 뒤에 있는 폴리곤 제외시키기)
- *		- 뷰포트 변환
- *		- 삼격형 보간(픽셀 보간하여 채우기) -> 스캔 라인
- *		- Depth Test 깊이 테스트
- *		- 픽셀셰이더
- *		- 픽셀 Output
- */

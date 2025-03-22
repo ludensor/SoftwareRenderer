@@ -3,7 +3,6 @@
 #include "core/sr_core_types.h"
 #include "core/sr_math.h"
 
-class Rasterizer;
 enum class SHADER_MODE : uint8_t;
 
 class GraphicDevice
@@ -45,7 +44,6 @@ private:
 	int32_t height_;
 
 	IShader* shader_;
-	Rasterizer* rasterizer_;
 
 	PipelineContext* pipeline_context_;
 };

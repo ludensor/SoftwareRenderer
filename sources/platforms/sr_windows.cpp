@@ -6,10 +6,10 @@
 LPCWSTR WindowClassName = TEXT("SoftwareRendererClass");
 LPCWSTR WindowTitleName = TEXT("Software Renderer");
 
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-float GetSecondsPerCycle();
-uint32_t GetCycles();
+static float GetSecondsPerCycle();
+static uint32_t GetCycles();
 
 int CALLBACK wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
@@ -86,13 +86,6 @@ int CALLBACK wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	const float seconds_per_cycle = GetSecondsPerCycle();
 	uint32_t prev_cycles = GetCycles();
-
-	uint32_t c = 0xff005511;
-	uint8_t* d = (uint8_t*)(&c);
-	uint8_t a = d[0];
-	a = d[1];
-	a = d[2];
-	a = d[3];
 
 	MSG msg{};
 	while (msg.message != WM_QUIT)
